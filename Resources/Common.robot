@@ -11,6 +11,7 @@ Library  LambdaTestStatus.py
     ...  visual: ${visual},
     ...  network: ${network},
     ...  console: ${console},
+    ...  tunnel: ${tunnel},
     ...  name: RobotFramework Lambda Test
 
 ${BROWSER}          ${ROBOT_BROWSER}

@@ -1,0 +1,48 @@
+image: python:3.8
+
+variables:
+  LAMBDA_TOKEN: $LAMBDA_TOKEN
+  LAMBDA_USER: $LAMBDA_USER
+
+stages:
+  - rf_lambda
+
+
+.test: &test_robotframework
+      stage: rf_lambda
+      script:
+        - robot -v platform:"$PLATFORM" -v browserName:$BROWSERNAME -v version:$VERSION -v ROBOT_BROWSER:$ROBOTBROWSER -v visual:false -v network:false -v console:false -v tunnel:true -v TOKEN:$LAMBDA_TOKEN -v USER:$LAMBDA_USER $TESTS
+      artifacts:
+        when: always
+        paths:
+          - tunnel.log
+        expire_in: 1 day
+
+before_script:
+  - apt-get update -qy
+  - apt-get install -y python-dev python3-pip
+  - pip3 install -r requirements.txt
+  - curl -iv https://hub.lambdatest.com
+  - wget https://downloads.lambdatest.com/tunnel/linux/64bit/LT_Linux.zip
+  - apt-get install -y unzip
+  - unzip LT_Linux.zip
+  - ./LT -user ${LAMBDA_USER} -key ${LAMBDA_TOKEN} &
+
+
+test_chrome:
+  <<: *test_robotframework
+  variables:
+    BROWSERNAME: chrome
+    VERSION: "79.0"
+    ROBOTBROWSER: chrome 
+    TESTS: master.robot
+    PLATFORM: Windows 10
+
+test_firefox:
+  <<: *test_robotframework
+  variables:
+    BROWSERNAME: firefox
+    VERSION: "59.0"
+    ROBOTBROWSER: firefox
+    TESTS: master.robot
+    PLATFORM: Windows 10
